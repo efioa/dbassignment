@@ -10,7 +10,6 @@ async function getUser(place) {
     time = await data.datetime
     // arr = Array.from(time)
     // arr.splice(0, 11)
-    // arr.toString()
     // timezone = (arr.splice(0, 5)).join("");
     document.getElementById("time").innerText = `${place}'s time = ${time} ${data.timezone_abbreviation}`
 
