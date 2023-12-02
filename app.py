@@ -111,6 +111,10 @@ def create_post_action():
     db.session.commit()
     return redirect(url_for("index"))
 
+@app.route("/map", methods=["GET"])
+@login_required
+def map():
+    return render_template("map.html")
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
