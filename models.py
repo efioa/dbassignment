@@ -35,43 +35,50 @@ class BlogPost(db.Model):
         return db.session.execute(sql).scalars().all() 
 
     
-    db = sqlite3 ()
-    conn = sqlite3.connect('countries.db')
+import sqlite3
 
-    c = conn.cursor()
+# Establish a connection to the database
+conn = sqlite3.connect('my_database.db')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS country_clicks (country text, clicks interger)''')
-   
-    def update_clicks(country):
-    # Check if the country exists in the table
-    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
-
-         data = c.fetchone()
-
-        if data is None:
-        # If the country doesn't exist, add a new row for it with a click count of 1
-        c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
-        else:
-        # If the country exists, increment the click count by 1
-        clicks = data[1] + 1
-        c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (clicks, country))
-
-    # Commit the changes and close the connection
-    conn.commit()
-    conn.close()
-
-    'update_clicks()'
-
-    import sqlite3
-
-conn = sqlite3.connect('countries.db')
+# Create a cursor object to interact with the database
 c = conn.cursor()
 
-c.execute("SELECT * FROM country_clicks")
-rows = c.fetchall()
+# Create the 'country_clicks' table if it doesn't exist
+c.execute("""
+CREATE TABLE IF NOT EXISTS country_clicks (
+    id INTEGER PRIMARY KEY,
+    country TEXT NOT NULL,
+    clicks INTEGER NOT NULL
+)
+""")
 
-for row in rows:
-    print(row)
+# Commit the changes to the database
+conn.commit()
+
+def add_country_click(country):
+    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
+    rows = c.fetchall()
+
+    if len(rows) == 0:
+        c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
+    else:
+        c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (rows[0][1] + 1, country))
+
     conn.commit()
-    conn.close()
 
+def country_clicks(country):
+    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
+    rows = c.fetchall()
+    click_count = 0
+
+    for row in rows:
+        click_count += row[1]
+
+    return click_count
+
+# Example usage:
+add_country_click('United States')
+add_country_click('United States')
+add_country_click('Canada')
+print(country_clicks('United States')) # Output: 2
+print(country_clicks('Canada')) # Output: 1
