@@ -3,6 +3,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+import sqlite3
 
 db = SQLAlchemy()
 
@@ -32,3 +33,30 @@ class BlogPost(db.Model):
     def get_post_lengths():
         sql = text("SELECT length(title) + length(content) FROM blog_post")
         return db.session.execute(sql).scalars().all() 
+
+    
+    db = sqlite3 ()
+    connection = sqlite3.connect('countries.db')
+
+    cursor = connection.cursor()
+
+    command1 = ('''CREATE TABLE IF NOT EXISTS country_clicks (country text, clicks interger)''')
+    def update_clicks(country):
+    # Check if the country exists in the table
+    cursor.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
+
+    data = c.fetchone()
+
+    if data is None:
+        # If the country doesn't exist, add a new row for it with a click count of 1
+        c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
+    else:
+        # If the country exists, increment the click count by 1
+        clicks = data[1] + 1
+        c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (clicks, country))
+
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
+
+    'update_clicks()'
