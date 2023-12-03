@@ -37,48 +37,24 @@ class BlogPost(db.Model):
     
 import sqlite3
 
-# Establish a connection to the database
-conn = sqlite3.connect('my_database.db')
+# Connect to the database
+conn = sqlite3.connect('world_stats.db')
 
-# Create a cursor object to interact with the database
+# Create a cursor object
 c = conn.cursor()
 
-# Create the 'country_clicks' table if it doesn't exist
-c.execute("""
-CREATE TABLE IF NOT EXISTS country_clicks (
-    id INTEGER PRIMARY KEY,
-    country TEXT NOT NULL,
-    clicks INTEGER NOT NULL
-)
-""")
+# Define the country and its corresponding row
+country = 'Germany'
+c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
+rows = c.fetchall()
 
-# Commit the changes to the database
+# If the country exists in the database, update its clicks
+if rows:
+    c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (str(rows[0][1] + 1), country))
+else:
+    # If the country does not exist in the database, add it with an initial click count of 1
+    c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
+
+# Commit the changes and close the connection
 conn.commit()
-
-def add_country_click(country):
-    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
-    rows = c.fetchall()
-
-    if len(rows) == 0:
-        c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
-    else:
-        c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (rows[0][1] + 1, country))
-
-    conn.commit()
-
-def country_clicks(country):
-    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
-    rows = c.fetchall()
-    click_count = 0
-
-    for row in rows:
-        click_count += row[1]
-
-    return click_count
-
-# Example usage:
-add_country_click('United States')
-add_country_click('United States')
-add_country_click('Canada')
-print(country_clicks('United States')) # Output: 2
-print(country_clicks('Canada')) # Output: 1
+conn.close()
