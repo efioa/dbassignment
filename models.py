@@ -36,21 +36,22 @@ class BlogPost(db.Model):
 
     
     db = sqlite3 ()
-    connection = sqlite3.connect('countries.db')
+    conn = sqlite3.connect('countries.db')
 
-    cursor = connection.cursor()
+    c = conn.cursor()
 
-    command1 = ('''CREATE TABLE IF NOT EXISTS country_clicks (country text, clicks interger)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS country_clicks (country text, clicks interger)''')
+   
     def update_clicks(country):
     # Check if the country exists in the table
-    cursor.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
+    c.execute("SELECT * FROM country_clicks WHERE country=?", (country,))
 
-    data = c.fetchone()
+         data = c.fetchone()
 
-    if data is None:
+        if data is None:
         # If the country doesn't exist, add a new row for it with a click count of 1
         c.execute("INSERT INTO country_clicks (country, clicks) VALUES (?, ?)", (country, 1))
-    else:
+        else:
         # If the country exists, increment the click count by 1
         clicks = data[1] + 1
         c.execute("UPDATE country_clicks SET clicks=? WHERE country=?", (clicks, country))
@@ -60,3 +61,17 @@ class BlogPost(db.Model):
     conn.close()
 
     'update_clicks()'
+
+    import sqlite3
+
+conn = sqlite3.connect('countries.db')
+c = conn.cursor()
+
+c.execute("SELECT * FROM country_clicks")
+rows = c.fetchall()
+
+for row in rows:
+    print(row)
+    conn.commit()
+    conn.close()
+
